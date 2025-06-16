@@ -12,7 +12,7 @@ import ordersRouter from './routes/orders.js';
 
 // استيراد قاعدة البيانات والبوت
 import './database/database.js';
-import { initializeBot } from './bot/telegramBot.js';
+import { initializeBot, handleWebhook } from './bot/telegramBot.js';
 
 // تحميل متغيرات البيئة
 dotenv.config();
@@ -87,6 +87,16 @@ app.get('/', (req, res) => {
 // المسارات الرئيسية
 app.use('/api/products', productsRouter);
 app.use('/api/orders', ordersRouter);
+
+// مسار webhook لبوت تلجرام
+app.post('/webhook/:token', (req, res) => {
+    const token = req.params.token;
+    if (token === process.env.TELEGRAM_BOT_TOKEN) {
+        handleWebhook(req, res);
+    } else {
+        res.status(401).json({ error: 'Unauthorized' });
+    }
+});
 
 // مسار إضافة البيانات الأولية
 app.post('/api/init-data', async (req, res) => {
